@@ -1,16 +1,26 @@
-# 💬 Chat API
+# 💬 Real-time Chat API
 
-API de chat en tiempo real con WebSockets.
+A real-time chat API with WebSockets, user authentication, and message management.
 
-## 🚀 Stack
+Built with **Node.js**, **Express**, **TypeScript**, **MongoDB**, and **Socket.io**.
+
+## ✨ Features
+
+- Real-time messaging with WebSockets
+- User authentication with JWT
+- Message history and persistence
+- Room/Channel management
+- User presence status
+
+## 🚀 Tech Stack
 
 - **Node.js + Express + TypeScript**
 - **MongoDB + Mongoose**
 - **Socket.io** (WebSockets)
-- **JWT** (Autenticación)
+- **JWT** (Authentication)
 - **Docker** (MongoDB)
 
-## 📁 Estructura
+## 📁 Project Structure
 
 ```
 chat_api/
@@ -45,11 +55,11 @@ docker-compose up -d
 npm run dev
 ```
 
-## 📝 Estado del Proyecto
+## 📝 Project Status
 
-En desarrollo...
+In development...
 
-## 📖 Licencia
+## 📖 License
 
 MIT
 
