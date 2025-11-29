@@ -17,16 +17,19 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    // Normalizar email a lowercase (consistente con el schema y login)
+    const normalizedEmail = email.toLowerCase();
+
     // Verificar si el usuario ya existe
     const existingUser = await User.findOne({
-      $or: [{ email }, { username }],
+      $or: [{ email: normalizedEmail }, { username }],
     });
 
     if (existingUser) {
       res.status(409).json({
         error: "User already exists",
         message:
-          existingUser.email === email
+          existingUser.email === normalizedEmail
             ? "Email already registered"
             : "Username already taken",
       });
@@ -36,7 +39,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     // Crear nuevo usuario
     const newUser = new User({
       username,
-      email,
+      email: normalizedEmail,
       password,
       status: "offline",
     });
