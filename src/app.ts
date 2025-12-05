@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import authRoutes from "./routes/auth.routes";
+import roomRoutes from "./routes/room.routes";
 
 const app = express();
 
@@ -33,7 +34,14 @@ app.get("/api", (req, res) => {
       auth: {
         register: "POST /api/auth/register",
         login: "POST /api/auth/login",
-        profile: "GET /api/auth/me",
+        profile: "GET /api/auth/me (requires auth)",
+      },
+      rooms: {
+        create: "POST /api/rooms (requires auth)",
+        getAll: "GET /api/rooms",
+        getById: "GET /api/rooms/:id (requires auth)",
+        join: "POST /api/rooms/:id/join (requires auth)",
+        leave: "POST /api/rooms/:id/leave (requires auth)",
       },
     },
   });
@@ -41,6 +49,7 @@ app.get("/api", (req, res) => {
 
 // Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/rooms", roomRoutes);
 
 // 404 handler
 app.use("*", (req, res) => {
