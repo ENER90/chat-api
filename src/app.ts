@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import authRoutes from "./routes/auth.routes";
 import roomRoutes from "./routes/room.routes";
+import messageRoutes from "./routes/message.routes";
 
 const app = express();
 
@@ -43,6 +44,12 @@ app.get("/api", (req, res) => {
         join: "POST /api/rooms/:id/join (requires auth)",
         leave: "POST /api/rooms/:id/leave (requires auth)",
       },
+      messages: {
+        send: "POST /api/messages/:roomId (requires auth)",
+        getByRoom: "GET /api/messages/:roomId (requires auth)",
+        edit: "PUT /api/messages/:messageId (requires auth)",
+        delete: "DELETE /api/messages/:messageId (requires auth)",
+      },
     },
   });
 });
@@ -50,6 +57,7 @@ app.get("/api", (req, res) => {
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/rooms", roomRoutes);
+app.use("/api/messages", messageRoutes);
 
 // 404 handler
 app.use("*", (req, res) => {
