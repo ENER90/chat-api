@@ -1,6 +1,8 @@
 import dotenv from "dotenv";
+import http from "http";
 import app from "./app";
 import { connectDB } from "./utils/database";
+import { initializeSocket } from "./sockets/socket.handler";
 
 dotenv.config();
 
@@ -10,9 +12,17 @@ const startServer = async () => {
   try {
     await connectDB();
 
-    app.listen(PORT, () => {
+    // Crear servidor HTTP
+    const httpServer = http.createServer(app);
+
+    // Inicializar Socket.io
+    const io = initializeSocket(httpServer);
+
+    // Iniciar servidor
+    httpServer.listen(PORT, () => {
       console.log(`🚀 Chat API Server running on port ${PORT}`);
       console.log(`📍 Environment: ${process.env.NODE_ENV || "development"}`);
+      console.log(`🔌 WebSocket server initialized`);
     });
   } catch (error) {
     console.error("❌ Failed to start server:", error);
