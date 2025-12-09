@@ -3,6 +3,7 @@ import cors from "cors";
 import authRoutes from "./routes/auth.routes";
 import roomRoutes from "./routes/room.routes";
 import messageRoutes from "./routes/message.routes";
+import { errorHandler } from "./middlewares/error.middleware";
 
 const app = express();
 
@@ -66,6 +67,9 @@ app.use("*", (req, res) => {
     message: `Cannot ${req.method} ${req.originalUrl}`,
   });
 });
+
+// Error handler (must be last)
+app.use(errorHandler);
 
 export default app;
 
