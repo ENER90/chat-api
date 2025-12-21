@@ -4,6 +4,10 @@ import authRoutes from "./routes/auth.routes";
 import roomRoutes from "./routes/room.routes";
 import messageRoutes from "./routes/message.routes";
 import { errorHandler } from "./middlewares/error.middleware";
+import {
+  getDatabaseStatus,
+  databaseHealthCheck,
+} from "./middlewares/database.middleware";
 
 const app = express();
 
@@ -18,12 +22,23 @@ app.use(express.urlencoded({ extended: true }));
 
 // Health check route
 app.get("/health", (req, res) => {
-  res.status(200).json({
-    status: "ok",
+  const dbStatus = getDatabaseStatus();
+  const isHealthy = dbStatus.status === "connected";
+
+  res.status(isHealthy ? 200 : 503).json({
+    status: isHealthy ? "OK" : "DEGRADED",
     message: "Chat API is running",
+    services: {
+      api: "OK",
+      database: dbStatus.status,
+    },
+    database: dbStatus,
     timestamp: new Date().toISOString(),
   });
 });
+
+// Database health check
+app.get("/api/database", databaseHealthCheck);
 
 // API info route
 app.get("/api", (req, res) => {
@@ -32,6 +47,7 @@ app.get("/api", (req, res) => {
     version: "1.0.0",
     endpoints: {
       health: "GET /health",
+      database: "GET /api/database",
       api: "GET /api",
       auth: {
         register: "POST /api/auth/register",
