@@ -3,7 +3,7 @@ import { Message } from "../models/message.model";
 import { Room } from "../models/room.model";
 import { AuthenticatedRequest } from "../middlewares/auth.middleware";
 
-// 💬 Send Message - Enviar mensaje a una sala
+// 💬 Send Message - Send a new message to a room
 export const sendMessage = async (
   req: AuthenticatedRequest,
   res: Response
@@ -39,7 +39,7 @@ export const sendMessage = async (
       return;
     }
 
-    // Verificar que el usuario sea miembro de la sala
+    // Check if user is a member of the room
     const isMember = room.members.some(
       (memberId) => memberId.toString() === userId
     );
@@ -47,7 +47,7 @@ export const sendMessage = async (
     if (!isMember) {
       res.status(403).json({
         error: "Forbidden",
-        message: "You must be a member of this room to send messages",
+        message: "You are not a member of this room",
       });
       return;
     }
@@ -63,10 +63,14 @@ export const sendMessage = async (
 
     res.status(201).json({
       message: "Message sent successfully",
-      messageData: {
+      message: {
         id: newMessage._id,
         content: newMessage.content,
-        sender: newMessage.sender,
+        sender: {
+          id: newMessage.sender,
+          username: (newMessage.sender as any).username,
+          avatar: (newMessage.sender as any).avatar,
+        },
         room: newMessage.room,
         isEdited: newMessage.isEdited,
         isDeleted: newMessage.isDeleted,
@@ -90,7 +94,7 @@ export const sendMessage = async (
   }
 };
 
-// 📋 Get Messages by Room - Obtener mensajes de una sala
+// 📋 Get Messages By Room - Get messages from a specific room
 export const getMessagesByRoom = async (
   req: AuthenticatedRequest,
   res: Response
@@ -118,7 +122,7 @@ export const getMessagesByRoom = async (
       return;
     }
 
-    // Verificar que el usuario sea miembro de la sala
+    // Check if user is a member of the room
     const isMember = room.members.some(
       (memberId) => memberId.toString() === userId
     );
@@ -126,7 +130,7 @@ export const getMessagesByRoom = async (
     if (!isMember) {
       res.status(403).json({
         error: "Forbidden",
-        message: "You must be a member of this room to view messages",
+        message: "You are not a member of this room",
       });
       return;
     }
@@ -149,7 +153,20 @@ export const getMessagesByRoom = async (
 
     res.status(200).json({
       message: "Messages retrieved successfully",
-      messages: messages.reverse(), // Mostrar del más antiguo al más reciente
+      messages: messages.reverse().map((msg) => ({ // Reverse for chronological order
+        id: msg._id,
+        content: msg.content,
+        sender: {
+          id: msg.sender,
+          username: (msg.sender as any).username,
+          avatar: (msg.sender as any).avatar,
+          status: (msg.sender as any).status,
+        },
+        room: msg.room,
+        isEdited: msg.isEdited,
+        createdAt: msg.createdAt,
+        updatedAt: msg.updatedAt,
+      })),
       pagination: {
         total,
         page: Number(page),
@@ -165,7 +182,7 @@ export const getMessagesByRoom = async (
   }
 };
 
-// ✏️ Edit Message - Editar un mensaje (solo el autor)
+// ✏️ Edit Message - Edit an existing message
 export const editMessage = async (
   req: AuthenticatedRequest,
   res: Response
@@ -201,19 +218,19 @@ export const editMessage = async (
       return;
     }
 
-    if (message.isDeleted) {
-      res.status(400).json({
-        error: "Bad request",
-        message: "Cannot edit a deleted message",
-      });
-      return;
-    }
-
-    // Verificar que el usuario sea el autor del mensaje
+    // Only sender can edit
     if (message.sender.toString() !== userId) {
       res.status(403).json({
         error: "Forbidden",
         message: "You can only edit your own messages",
+      });
+      return;
+    }
+
+    if (message.isDeleted) {
+      res.status(400).json({
+        error: "Bad request",
+        message: "Cannot edit a deleted message",
       });
       return;
     }
@@ -224,14 +241,17 @@ export const editMessage = async (
     await message.populate("sender", "username avatar");
 
     res.status(200).json({
-      message: "Message edited successfully",
-      messageData: {
+      message: "Message updated successfully",
+      message: {
         id: message._id,
         content: message.content,
-        sender: message.sender,
+        sender: {
+          id: message.sender,
+          username: (message.sender as any).username,
+          avatar: (message.sender as any).avatar,
+        },
         room: message.room,
         isEdited: message.isEdited,
-        createdAt: message.createdAt,
         updatedAt: message.updatedAt,
       },
     });
@@ -243,7 +263,7 @@ export const editMessage = async (
   }
 };
 
-// 🗑️ Delete Message - Eliminar un mensaje (solo el autor)
+// 🗑️ Delete Message - Soft delete an existing message
 export const deleteMessage = async (
   req: AuthenticatedRequest,
   res: Response
@@ -270,15 +290,7 @@ export const deleteMessage = async (
       return;
     }
 
-    if (message.isDeleted) {
-      res.status(400).json({
-        error: "Bad request",
-        message: "Message is already deleted",
-      });
-      return;
-    }
-
-    // Verificar que el usuario sea el autor del mensaje
+    // Only sender can delete
     if (message.sender.toString() !== userId) {
       res.status(403).json({
         error: "Forbidden",
@@ -292,6 +304,12 @@ export const deleteMessage = async (
 
     res.status(200).json({
       message: "Message deleted successfully",
+      message: {
+        id: message._id,
+        room: message.room,
+        isDeleted: message.isDeleted,
+        updatedAt: message.updatedAt,
+      },
     });
   } catch (error) {
     res.status(500).json({

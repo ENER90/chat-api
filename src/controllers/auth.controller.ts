@@ -3,12 +3,12 @@ import { User } from "../models/user.model";
 import { generateToken } from "../utils/jwt";
 import { AuthenticatedRequest } from "../middlewares/auth.middleware";
 
-// 📝 Register - Registrar nuevo usuario
+// 📝 Register - Register new user
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const { username, email, password } = req.body;
 
-    // Validar campos requeridos
+    // Validate required fields
     if (!username || !email || !password) {
       res.status(400).json({
         error: "Validation error",
@@ -17,10 +17,10 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Normalizar email a lowercase (consistente con el schema y login)
+    // Normalize email to lowercase (consistent with schema and login)
     const normalizedEmail = email.toLowerCase();
 
-    // Verificar si el usuario ya existe
+    // Check if user already exists
     const existingUser = await User.findOne({
       $or: [{ email: normalizedEmail }, { username }],
     });
@@ -36,7 +36,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Crear nuevo usuario
+    // Create new user
     const newUser = new User({
       username,
       email: normalizedEmail,
@@ -46,14 +46,14 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
     await newUser.save();
 
-    // Generar token JWT
+    // Generate JWT token
     const token = generateToken({
       userId: newUser._id.toString(),
       email: newUser.email,
       role: newUser.role,
     });
 
-    // Respuesta sin password
+    // Response without password
     res.status(201).json({
       message: "User registered successfully",
       token,
@@ -69,7 +69,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     });
   } catch (error) {
     if (error instanceof Error) {
-      // Errores de validación de Mongoose
+      // Mongoose validation errors
       if (error.name === "ValidationError") {
         res.status(400).json({
           error: "Validation error",
@@ -86,12 +86,12 @@ export const register = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-// 🔐 Login - Iniciar sesión
+// 🔐 Login - Log in user
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
 
-    // Validar campos requeridos
+    // Validate required fields
     if (!email || !password) {
       res.status(400).json({
         error: "Validation error",
@@ -100,7 +100,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Buscar usuario por email
+    // Find user by email
     const user = await User.findOne({ email: email.toLowerCase() });
 
     if (!user) {
@@ -111,7 +111,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Verificar contraseña
+    // Verify password
     const isPasswordValid = await user.comparePassword(password);
 
     if (!isPasswordValid) {
@@ -122,19 +122,19 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Actualizar status a online
+    // Update status to online
     user.status = "online";
     user.lastSeen = new Date();
     await user.save();
 
-    // Generar token JWT
+    // Generate JWT token
     const token = generateToken({
       userId: user._id.toString(),
       email: user.email,
       role: user.role,
     });
 
-    // Respuesta sin password
+    // Response without password
     res.status(200).json({
       message: "Login successful",
       token,
@@ -157,7 +157,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-// 👤 Get Profile - Obtener perfil del usuario autenticado
+// 👤 Get Profile - Get authenticated user profile
 export const getProfile = async (
   req: AuthenticatedRequest,
   res: Response
@@ -171,7 +171,7 @@ export const getProfile = async (
       return;
     }
 
-    // Buscar usuario por ID del token
+    // Find user by ID from token
     const user = await User.findById(req.user.userId).select("-password");
 
     if (!user) {
@@ -203,4 +203,3 @@ export const getProfile = async (
     });
   }
 };
-

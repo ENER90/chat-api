@@ -2,7 +2,7 @@ import { Response } from "express";
 import { Room } from "../models/room.model";
 import { AuthenticatedRequest } from "../middlewares/auth.middleware";
 
-// 📝 Create Room - Crear nueva sala
+// 📝 Create Room - Create new room
 export const createRoom = async (
   req: AuthenticatedRequest,
   res: Response
@@ -66,7 +66,7 @@ export const createRoom = async (
   }
 };
 
-// 📋 Get All Rooms - Obtener todas las salas públicas
+// 📋 Get All Rooms - Get all public rooms
 export const getAllRooms = async (
   req: AuthenticatedRequest,
   res: Response
@@ -104,7 +104,7 @@ export const getAllRooms = async (
   }
 };
 
-// 🔍 Get Room By ID - Obtener detalles de una sala
+// 🔍 Get Room By ID - Get room details
 export const getRoomById = async (
   req: AuthenticatedRequest,
   res: Response
@@ -145,7 +145,7 @@ export const getRoomById = async (
   }
 };
 
-// ➕ Join Room - Unirse a una sala
+// ➕ Join Room - Join a room
 export const joinRoom = async (
   req: AuthenticatedRequest,
   res: Response
@@ -199,7 +199,7 @@ export const joinRoom = async (
   }
 };
 
-// ➖ Leave Room - Salir de una sala
+// ➖ Leave Room - Leave a room
 export const leaveRoom = async (
   req: AuthenticatedRequest,
   res: Response
