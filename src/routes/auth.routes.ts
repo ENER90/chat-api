@@ -4,13 +4,13 @@ import { authenticateToken } from "../middlewares/auth.middleware";
 
 const router = Router();
 
-// 📝 POST /api/auth/register - Registrar nuevo usuario
+// POST /api/auth/register - Register new user
 router.post("/register", register);
 
-// 🔐 POST /api/auth/login - Iniciar sesión
+// POST /api/auth/login - Login user
 router.post("/login", login);
 
-// 👤 GET /api/auth/me - Obtener perfil del usuario autenticado
+// GET /api/auth/me - Get authenticated user's profile
 router.get("/me", authenticateToken, getProfile);
 
 export default router;

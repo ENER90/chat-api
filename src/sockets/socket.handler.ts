@@ -13,7 +13,7 @@ export const initializeSocket = (httpServer: HttpServer): SocketServer => {
     },
   });
 
-  // Middleware de autenticación
+  // Authentication middleware
   io.use(async (socket: any, next) => {
     try {
       const token = socket.handshake.auth.token || 
@@ -26,7 +26,7 @@ export const initializeSocket = (httpServer: HttpServer): SocketServer => {
       const decoded = verifyToken(token);
       socket.user = decoded;
 
-      // Actualizar estado del usuario a online
+      // Update user status to online
       if (decoded.userId) {
         await User.findByIdAndUpdate(decoded.userId, {
           status: "online",
@@ -57,7 +57,7 @@ export const initializeSocket = (httpServer: HttpServer): SocketServer => {
     const userId = socket.user.userId;
     console.log(`✅ User connected: ${socket.user.email} (${socket.id})`);
 
-    // Unirse a las salas donde el usuario es miembro
+    // Join rooms where the user is a member
     try {
       const userRooms = await Room.find({ members: userId });
       userRooms.forEach((room) => {
@@ -273,7 +273,7 @@ export const initializeSocket = (httpServer: HttpServer): SocketServer => {
       }
     });
 
-    // Evento: Desconexión
+    // Event: Disconnection
     socket.on("disconnect", async () => {
       try {
         // Actualizar estado del usuario a offline
