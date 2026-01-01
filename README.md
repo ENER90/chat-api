@@ -85,6 +85,54 @@ DELETE /api/messages/:messageId   - Delete message (auth)
 - `user_left` - User left room
 - `error` - Error occurred
 
+## 💻 Example Usage
+
+### Register & Login
+
+```bash
+# Register
+curl -X POST http://localhost:3004/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"username":"john","email":"john@test.com","password":"123456"}'
+
+# Login (get token)
+curl -X POST http://localhost:3004/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"john@test.com","password":"123456"}'
+```
+
+### Create Room & Send Message
+
+```bash
+# Create room
+curl -X POST http://localhost:3004/api/rooms \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{"name":"General Chat","description":"Main chat room","type":"public"}'
+
+# Send message
+curl -X POST http://localhost:3004/api/messages/ROOM_ID \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{"content":"Hello everyone!"}'
+
+# Get messages
+curl http://localhost:3004/api/messages/ROOM_ID \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+## 🔧 Environment Variables
+
+Create `.env` file:
+
+```env
+PORT=3004
+MONGODB_URI=mongodb://admin:password123@localhost:27019/chat-db?authSource=admin
+JWT_SECRET=your-secret-key
+JWT_EXPIRES_IN=7d
+CORS_ORIGIN=http://localhost:3004
+```
+
 ## 📖 License
 
 MIT
