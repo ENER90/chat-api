@@ -46,7 +46,6 @@ const roomSchema = new Schema<IRoom>(
   }
 );
 
-// 📊 INDEXES
 roomSchema.index({ name: 1 });
 roomSchema.index({ type: 1 });
 roomSchema.index({ createdBy: 1 });

@@ -64,7 +64,6 @@ const userSchema = new Schema<IUser>(
   }
 );
 
-// 🔐 PRE-SAVE: Hash password before saving
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
     return next();
@@ -79,7 +78,6 @@ userSchema.pre("save", async function (next) {
   }
 });
 
-// 🔍 METHOD: Compare password
 userSchema.methods.comparePassword = async function (
   candidatePassword: string
 ): Promise<boolean> {
@@ -90,7 +88,6 @@ userSchema.methods.comparePassword = async function (
   }
 };
 
-// 📊 INDEXES
 userSchema.index({ email: 1 });
 userSchema.index({ username: 1 });
 

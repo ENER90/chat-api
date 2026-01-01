@@ -2,7 +2,6 @@ import { Response } from "express";
 import { Room } from "../models/room.model";
 import { AuthenticatedRequest } from "../middlewares/auth.middleware";
 
-// 📝 Create Room - Create new room
 export const createRoom = async (
   req: AuthenticatedRequest,
   res: Response
@@ -66,7 +65,6 @@ export const createRoom = async (
   }
 };
 
-// 📋 Get All Rooms - Get all public rooms
 export const getAllRooms = async (
   req: AuthenticatedRequest,
   res: Response
@@ -104,7 +102,6 @@ export const getAllRooms = async (
   }
 };
 
-// 🔍 Get Room By ID - Get room details
 export const getRoomById = async (
   req: AuthenticatedRequest,
   res: Response
@@ -145,7 +142,6 @@ export const getRoomById = async (
   }
 };
 
-// ➕ Join Room - Join a room
 export const joinRoom = async (
   req: AuthenticatedRequest,
   res: Response
@@ -199,7 +195,6 @@ export const joinRoom = async (
   }
 };
 
-// ➖ Leave Room - Leave a room
 export const leaveRoom = async (
   req: AuthenticatedRequest,
   res: Response

@@ -3,7 +3,6 @@ import { Message } from "../models/message.model";
 import { Room } from "../models/room.model";
 import { AuthenticatedRequest } from "../middlewares/auth.middleware";
 
-// 💬 Send Message - Send a new message to a room
 export const sendMessage = async (
   req: AuthenticatedRequest,
   res: Response
@@ -39,7 +38,6 @@ export const sendMessage = async (
       return;
     }
 
-    // Check if user is a member of the room
     const isMember = room.members.some(
       (memberId) => memberId.toString() === userId
     );
@@ -94,7 +92,6 @@ export const sendMessage = async (
   }
 };
 
-// 📋 Get Messages By Room - Get messages from a specific room
 export const getMessagesByRoom = async (
   req: AuthenticatedRequest,
   res: Response
@@ -122,7 +119,6 @@ export const getMessagesByRoom = async (
       return;
     }
 
-    // Check if user is a member of the room
     const isMember = room.members.some(
       (memberId) => memberId.toString() === userId
     );
@@ -182,7 +178,6 @@ export const getMessagesByRoom = async (
   }
 };
 
-// ✏️ Edit Message - Edit an existing message
 export const editMessage = async (
   req: AuthenticatedRequest,
   res: Response
@@ -218,7 +213,6 @@ export const editMessage = async (
       return;
     }
 
-    // Only sender can edit
     if (message.sender.toString() !== userId) {
       res.status(403).json({
         error: "Forbidden",
@@ -263,7 +257,6 @@ export const editMessage = async (
   }
 };
 
-// 🗑️ Delete Message - Soft delete an existing message
 export const deleteMessage = async (
   req: AuthenticatedRequest,
   res: Response
@@ -290,7 +283,6 @@ export const deleteMessage = async (
       return;
     }
 
-    // Only sender can delete
     if (message.sender.toString() !== userId) {
       res.status(403).json({
         error: "Forbidden",

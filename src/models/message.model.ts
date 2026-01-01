@@ -42,7 +42,6 @@ const messageSchema = new Schema<IMessage>(
   }
 );
 
-// 📊 INDEXES
 messageSchema.index({ room: 1, createdAt: -1 });
 messageSchema.index({ sender: 1 });
 messageSchema.index({ createdAt: -1 });

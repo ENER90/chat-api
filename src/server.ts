@@ -12,13 +12,9 @@ const startServer = async () => {
   try {
     await connectDB();
 
-    // Create HTTP server
     const httpServer = http.createServer(app);
-
-    // Initialize Socket.io
     const io = initializeSocket(httpServer);
 
-    // Start server
     httpServer.listen(PORT, () => {
       console.log(`🚀 Chat API Server running on port ${PORT}`);
       console.log(`📍 Environment: ${process.env.NODE_ENV || "development"}`);

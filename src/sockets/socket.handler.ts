@@ -13,7 +13,6 @@ export const initializeSocket = (httpServer: HttpServer): SocketServer => {
     },
   });
 
-  // Authentication middleware
   io.use(async (socket: any, next) => {
     try {
       const token = socket.handshake.auth.token || 
@@ -26,7 +25,6 @@ export const initializeSocket = (httpServer: HttpServer): SocketServer => {
       const decoded = verifyToken(token);
       socket.user = decoded;
 
-      // Update user status to online
       if (decoded.userId) {
         await User.findByIdAndUpdate(decoded.userId, {
           status: "online",
@@ -57,7 +55,6 @@ export const initializeSocket = (httpServer: HttpServer): SocketServer => {
     const userId = socket.user.userId;
     console.log(`✅ User connected: ${socket.user.email} (${socket.id})`);
 
-    // Join rooms where the user is a member
     try {
       const userRooms = await Room.find({ members: userId });
       userRooms.forEach((room) => {
@@ -68,7 +65,6 @@ export const initializeSocket = (httpServer: HttpServer): SocketServer => {
       console.error("Error joining user rooms:", error);
     }
 
-    // Evento: Unirse a una sala
     socket.on("join_room", async (roomId: string) => {
       try {
         const room = await Room.findById(roomId);
@@ -91,8 +87,6 @@ export const initializeSocket = (httpServer: HttpServer): SocketServer => {
 
         socket.join(roomId);
         socket.emit("joined_room", { roomId, roomName: room.name });
-
-        // Notificar a otros usuarios en la sala
         socket.to(roomId).emit("user_joined", {
           userId,
           roomId,
@@ -106,13 +100,10 @@ export const initializeSocket = (httpServer: HttpServer): SocketServer => {
       }
     });
 
-    // Evento: Salir de una sala
     socket.on("leave_room", async (roomId: string) => {
       try {
         socket.leave(roomId);
         socket.emit("left_room", { roomId });
-
-        // Notificar a otros usuarios en la sala
         socket.to(roomId).emit("user_left", {
           userId,
           roomId,
@@ -126,7 +117,6 @@ export const initializeSocket = (httpServer: HttpServer): SocketServer => {
       }
     });
 
-    // Evento: Enviar mensaje
     socket.on("send_message", async (data: { roomId: string; content: string }) => {
       try {
         const { roomId, content } = data;
@@ -163,7 +153,6 @@ export const initializeSocket = (httpServer: HttpServer): SocketServer => {
         await newMessage.save();
         await newMessage.populate("sender", "username avatar status");
 
-        // Emitir mensaje a todos en la sala (incluyendo el remitente)
         io.to(roomId).emit("new_message", {
           id: newMessage._id,
           content: newMessage.content,
@@ -185,7 +174,6 @@ export const initializeSocket = (httpServer: HttpServer): SocketServer => {
       }
     });
 
-    // Evento: Editar mensaje
     socket.on("edit_message", async (data: { messageId: string; content: string }) => {
       try {
         const { messageId, content } = data;
@@ -219,7 +207,6 @@ export const initializeSocket = (httpServer: HttpServer): SocketServer => {
         await message.save();
         await message.populate("sender", "username avatar");
 
-        // Emitir mensaje editado a todos en la sala
         io.to(message.room.toString()).emit("message_edited", {
           id: message._id,
           content: message.content,
@@ -240,7 +227,6 @@ export const initializeSocket = (httpServer: HttpServer): SocketServer => {
       }
     });
 
-    // Evento: Eliminar mensaje
     socket.on("delete_message", async (messageId: string) => {
       try {
         const message = await Message.findById(messageId);
@@ -260,7 +246,6 @@ export const initializeSocket = (httpServer: HttpServer): SocketServer => {
         message.isDeleted = true;
         await message.save();
 
-        // Emitir mensaje eliminado a todos en la sala
         io.to(message.room.toString()).emit("message_deleted", {
           messageId: message._id,
           roomId: message.room.toString(),
@@ -273,10 +258,8 @@ export const initializeSocket = (httpServer: HttpServer): SocketServer => {
       }
     });
 
-    // Event: Disconnection
     socket.on("disconnect", async () => {
       try {
-        // Actualizar estado del usuario a offline
         if (userId) {
           await User.findByIdAndUpdate(userId, {
             status: "offline",

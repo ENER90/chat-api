@@ -3,12 +3,10 @@ import { User } from "../models/user.model";
 import { generateToken } from "../utils/jwt";
 import { AuthenticatedRequest } from "../middlewares/auth.middleware";
 
-// 📝 Register - Register new user
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const { username, email, password } = req.body;
 
-    // Validate required fields
     if (!username || !email || !password) {
       res.status(400).json({
         error: "Validation error",
@@ -17,10 +15,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Normalize email to lowercase (consistent with schema and login)
     const normalizedEmail = email.toLowerCase();
-
-    // Check if user already exists
     const existingUser = await User.findOne({
       $or: [{ email: normalizedEmail }, { username }],
     });
@@ -36,7 +31,6 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Create new user
     const newUser = new User({
       username,
       email: normalizedEmail,
@@ -46,14 +40,12 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
     await newUser.save();
 
-    // Generate JWT token
     const token = generateToken({
       userId: newUser._id.toString(),
       email: newUser.email,
       role: newUser.role,
     });
 
-    // Response without password
     res.status(201).json({
       message: "User registered successfully",
       token,
@@ -69,7 +61,6 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     });
   } catch (error) {
     if (error instanceof Error) {
-      // Mongoose validation errors
       if (error.name === "ValidationError") {
         res.status(400).json({
           error: "Validation error",
@@ -86,12 +77,10 @@ export const register = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-// 🔐 Login - Log in user
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
 
-    // Validate required fields
     if (!email || !password) {
       res.status(400).json({
         error: "Validation error",
@@ -100,7 +89,6 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Find user by email
     const user = await User.findOne({ email: email.toLowerCase() });
 
     if (!user) {
@@ -111,7 +99,6 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Verify password
     const isPasswordValid = await user.comparePassword(password);
 
     if (!isPasswordValid) {
@@ -122,19 +109,16 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Update status to online
     user.status = "online";
     user.lastSeen = new Date();
     await user.save();
 
-    // Generate JWT token
     const token = generateToken({
       userId: user._id.toString(),
       email: user.email,
       role: user.role,
     });
 
-    // Response without password
     res.status(200).json({
       message: "Login successful",
       token,
@@ -157,7 +141,6 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-// 👤 Get Profile - Get authenticated user profile
 export const getProfile = async (
   req: AuthenticatedRequest,
   res: Response
@@ -171,7 +154,6 @@ export const getProfile = async (
       return;
     }
 
-    // Find user by ID from token
     const user = await User.findById(req.user.userId).select("-password");
 
     if (!user) {
@@ -203,4 +185,3 @@ export const getProfile = async (
     });
   }
 };
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        

@@ -20,7 +20,6 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Health check route
 app.get("/health", (req, res) => {
   const dbStatus = getDatabaseStatus();
   const isHealthy = dbStatus.status === "connected";
@@ -37,10 +36,8 @@ app.get("/health", (req, res) => {
   });
 });
 
-// Database health check
 app.get("/api/database", databaseHealthCheck);
 
-// API info route
 app.get("/api", (req, res) => {
   res.status(200).json({
     message: "Real-time Chat API",
@@ -71,12 +68,10 @@ app.get("/api", (req, res) => {
   });
 });
 
-// Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/rooms", roomRoutes);
 app.use("/api/messages", messageRoutes);
 
-// 404 handler
 app.use("*", (req, res) => {
   res.status(404).json({
     error: "Route not found",
@@ -84,7 +79,6 @@ app.use("*", (req, res) => {
   });
 });
 
-// Error handler (must be last)
 app.use(errorHandler);
 
 export default app;
